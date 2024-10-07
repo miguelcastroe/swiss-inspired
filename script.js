@@ -1,123 +1,152 @@
+// Set the dimensions for the SVG container
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-const svg = d3.select("#network-container")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height);
+const svg = d3.select('svg')
+  .attr('width', width)
+  .attr('height', height);
 
-const nodes = [
-    { id: 0, name: "Andrew Trousdale", shape: "circle", x: width / 2, y: height / 2, r: 22 },
-    { id: 1, name: "Positive Psychology", shape: "triangle", x: 100, y: 100, r: 22 },
-    { id: 2, name: "Interactive Machines", shape: "hexagon", x: 200, y: 200, r: 22 },
-    { id: 3, name: "Human Expression", shape: "square", x: 300, y: 300, r: 22 },
-    { id: 4, name: "Evolutionary Systems", shape: "triangle", x: 400, y: 400, r: 22 },
-    { id: 5, name: "Information", shape: "circle", x: 500, y: 500, r: 22 }
+// Data for the nodes
+const nodesData = [
+  { id: 'Andrew Trousdale', shape: 'circle' },
+  { id: 'Positive Psychology', shape: 'triangle' },
+  { id: 'Interactive Machines', shape: 'hexagon' },
+  { id: 'Human Expression', shape: 'square' },
+  { id: 'Evolutionary Systems', shape: 'triangle' },
+  { id: 'Information', shape: 'circle' }
 ];
 
-const links = [
-    { source: 0, target: 1 },
-    { source: 0, target: 2 },
-    { source: 0, target: 3 },
-    { source: 0, target: 4 },
-    { source: 0, target: 5 }
-];
+// Initialize force simulation
+const simulation = d3.forceSimulation(nodesData)
+  .force('link', d3.forceLink().distance(150))
+  .force('charge', d3.forceManyBody().strength(-300))
+  .force('center', d3.forceCenter(width / 2, height / 2))
+  .on('tick', ticked);
 
-// Add lines between nodes
-const link = svg.selectAll("line")
-    .data(links)
-    .enter()
-    .append("line")
-    .attr("x1", d => nodes[d.source].x)
-    .attr("y1", d => nodes[d.source].y)
-    .attr("x2", d => nodes[d.target].x)
-    .attr("y2", d => nodes[d.target].y);
+// Draw the nodes
+const nodes = svg.selectAll('path.node')
+  .data(nodesData)
+  .enter().append('g')
+  .attr('class', 'node')
+  .call(drag(simulation));
 
-// Add node groups
-const node = svg.selectAll(".node")
-    .data(nodes)
-    .enter()
-    .append("g")
-    .attr("class", "node");
+// Append the correct shapes
+nodes.append('path')
+  .attr('d', d => generateShape(d.shape))
+  .attr('transform', 'scale(1)')
+  .attr('fill', '#ddd')
+  .attr('stroke', '#333')
+  .attr('stroke-width', '2');
 
-// Function to create the shape of the node based on its type
-node.append("path")
-    .attr("d", d => generateShape(d))
-    .attr("transform", d => `translate(${d.x}, ${d.y})`)
-    .attr("class", "shape")
-    .on("click", function(event, d) {
-        openModal(d);  // Handle click event to open the modal
-    });
+// Append labels
+nodes.append('text')
+  .attr('x', 12)
+  .attr('y', 4)
+  .text(d => d.id)
+  .attr('font-size', '12px');
 
-// Add text labels
-node.append("text")
-    .attr("x", d => d.x + 25)
-    .attr("y", d => d.y + 5)
-    .text(d => d.name);
+// Make nodes clickable to show modal
+nodes.on('click', function(event, d) {
+  showModal(d.id);
+});
 
-// Function to generate shapes (circle, triangle, square, hexagon)
-function generateShape(d) {
-    const size = d.r;  // Set the size of shapes to 22px
-    switch (d.shape) {
-        case "circle":
-            return d3.symbol().type(d3.symbolCircle).size(size * size)();
-        case "triangle":
-            return d3.symbol().type(d3.symbolTriangle).size(size * size)();
-        case "square":
-            return d3.symbol().type(d3.symbolSquare).size(size * size)();
-        case "hexagon":
-            return d3.symbol().type(d3.symbolHexagon).size(size * size)();
-        default:
-            return d3.symbol().type(d3.symbolCircle).size(size * size)();
-    }
-}
-
-// Force simulation to move nodes around
-const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).distance(150))
-    .force("charge", d3.forceManyBody().strength(-400))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .on("tick", ticked);
-
+// Force simulation tick event
 function ticked() {
-    // Update positions of lines
-    link
-        .attr("x1", d => nodes[d.source].x)
-        .attr("y1", d => nodes[d.source].y)
-        .attr("x2", d => nodes[d.target].x)
-        .attr("y2", d => nodes[d.target].y);
-
-    // Update positions of nodes and shapes
-    node.selectAll("path")
-        .attr("transform", d => `translate(${d.x}, ${d.y})`);
-
-    // Update text labels to stay aligned with shapes
-    node.selectAll("text")
-        .attr("x", d => d.x + 25)
-        .attr("y", d => d.y + 5);
+  nodes.attr('transform', d => `translate(${d.x},${d.y})`);
 }
 
-// Modal Handling
-const modal = document.getElementById("node-modal");
-const modalTitle = document.getElementById("modal-title");
-const modalContent = document.getElementById("modal-content");
-const closeModal = document.getElementsByClassName("close")[0];
+// Modal handling functions
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modal-title');
+const closeBtn = document.querySelector('.close-btn');
 
-// Function to open the modal
-function openModal(d) {
-    modalTitle.textContent = d.name;  // Set modal title to node name
-    modalContent.textContent = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.";  // Example content
-    modal.style.display = "block";
+function showModal(nodeName) {
+  modal.style.display = 'block';
+  modalTitle.textContent = nodeName;
 }
 
-// Close the modal when the user clicks the 'x'
-closeModal.onclick = function() {
-    modal.style.display = "none";
-};
+closeBtn.onclick = function() {
+  modal.style.display = 'none';
+}
 
-// Close the modal when the user clicks outside of it
 window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-};
+  if (event.target == modal) {
+    modal.style.display = 'none';
+  }
+}
+
+// Shape generation function
+function generateShape(shapeType) {
+  switch (shapeType) {
+    case 'circle':
+      return d3.symbol().type(d3.symbolCircle).size(1540)();
+    case 'hexagon':
+      return drawHexagon();
+    case 'square':
+      return drawSquare();
+    case 'triangle':
+      return drawTriangle();
+    default:
+      return d3.symbol().type(d3.symbolCircle).size(1540)();
+  }
+}
+
+// Custom shape functions
+function drawHexagon() {
+  const size = 22;
+  const points = 6;
+  const radius = size / 2;
+  let angle = Math.PI / 3;
+
+  const path = d3.path();
+  for (let i = 0; i < points; i++) {
+    const x = radius * Math.cos(angle * i);
+    const y = radius * Math.sin(angle * i);
+    if (i === 0) path.moveTo(x, y);
+    else path.lineTo(x, y);
+  }
+  path.closePath();
+  return path.toString();
+}
+
+function drawSquare() {
+  const size = 22;
+  const path = d3.path();
+  path.rect(-size / 2, -size / 2, size, size);
+  return path.toString();
+}
+
+function drawTriangle() {
+  const size = 22;
+  const path = d3.path();
+  path.moveTo(0, -size / Math.sqrt(3));
+  path.lineTo(-size / 2, size / (2 * Math.sqrt(3)));
+  path.lineTo(size / 2, size / (2 * Math.sqrt(3)));
+  path.closePath();
+  return path.toString();
+}
+
+// Drag handling functions
+function drag(simulation) {
+  function dragstarted(event, d) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  function dragged(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+
+  function dragended(event, d) {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
+
+  return d3.drag()
+    .on('start', dragstarted)
+    .on('drag', dragged)
+    .on('end', dragended);
+}
