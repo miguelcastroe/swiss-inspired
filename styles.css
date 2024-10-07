@@ -24,24 +24,6 @@ line {
     stroke-width: 1px;
 }
 
-/* Button styling for nodes */
-.node-button {
-    background-color: #e0e0e0;
-    border: 1px solid #333;
-    border-radius: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    text-align: center;
-    width: 100px;
-    color: #333;
-}
-
-.node-button:hover {
-    background-color: #ccc;
-}
-
 /* Modal styles */
 .modal {
     display: none; /* Hidden by default */
