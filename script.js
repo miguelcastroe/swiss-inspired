@@ -7,12 +7,12 @@ const svg = d3.select("#network-container")
     .attr("height", height);
 
 const nodes = [
-    { id: 0, name: "Andrew Trousdale", shape: "circle", x: width / 2, y: height / 2 },
-    { id: 1, name: "Positive Psychology", shape: "triangle", x: 100, y: 100 },
-    { id: 2, name: "Interactive Machines", shape: "hexagon", x: 200, y: 200 },
-    { id: 3, name: "Human Expression", shape: "square", x: 300, y: 300 },
-    { id: 4, name: "Evolutionary Systems", shape: "triangle", x: 400, y: 400 },
-    { id: 5, name: "Information", shape: "circle", x: 500, y: 500 }
+    { id: 0, name: "Andrew Trousdale", shape: "circle", x: width / 2, y: height / 2, r: 22 },
+    { id: 1, name: "Positive Psychology", shape: "triangle", x: 100, y: 100, r: 22 },
+    { id: 2, name: "Interactive Machines", shape: "hexagon", x: 200, y: 200, r: 22 },
+    { id: 3, name: "Human Expression", shape: "square", x: 300, y: 300, r: 22 },
+    { id: 4, name: "Evolutionary Systems", shape: "triangle", x: 400, y: 400, r: 22 },
+    { id: 5, name: "Information", shape: "circle", x: 500, y: 500, r: 22 }
 ];
 
 const links = [
@@ -40,25 +40,43 @@ const node = svg.selectAll(".node")
     .append("g")
     .attr("class", "node");
 
-// Add a button inside each node (using foreignObject to allow HTML inside SVG)
-node.append("foreignObject")
-    .attr("x", d => d.x - 50)  // Center the button
-    .attr("y", d => d.y - 20)
-    .attr("width", 100)
-    .attr("height", 40)
-    .append("xhtml:button")
-    .attr("class", "node-button")
-    .text(d => d.name)
+// Function to create the shape of the node based on its type
+node.append("path")
+    .attr("d", d => generateShape(d))
+    .attr("transform", d => `translate(${d.x}, ${d.y})`)
+    .attr("class", "shape")
     .on("click", function(event, d) {
         openModal(d);  // Handle click event to open the modal
     });
 
+// Add text labels
+node.append("text")
+    .attr("x", d => d.x + 25)
+    .attr("y", d => d.y + 5)
+    .text(d => d.name);
+
+// Function to generate shapes (circle, triangle, square, hexagon)
+function generateShape(d) {
+    const size = d.r;  // Set the size of shapes to 22px
+    switch (d.shape) {
+        case "circle":
+            return d3.symbol().type(d3.symbolCircle).size(size * size)();
+        case "triangle":
+            return d3.symbol().type(d3.symbolTriangle).size(size * size)();
+        case "square":
+            return d3.symbol().type(d3.symbolSquare).size(size * size)();
+        case "hexagon":
+            return d3.symbol().type(d3.symbolHexagon).size(size * size)();
+        default:
+            return d3.symbol().type(d3.symbolCircle).size(size * size)();
+    }
+}
+
 // Force simulation to move nodes around
 const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).distance(100))
-    .force("charge", d3.forceManyBody().strength(-150))
+    .force("link", d3.forceLink(links).distance(150))
+    .force("charge", d3.forceManyBody().strength(-400))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(80))  // Ensure no overlap
     .on("tick", ticked);
 
 function ticked() {
@@ -69,10 +87,14 @@ function ticked() {
         .attr("x2", d => nodes[d.target].x)
         .attr("y2", d => nodes[d.target].y);
 
-    // Update positions of nodes
-    node.selectAll("foreignObject")
-        .attr("x", d => d.x - 50)  // Center the button
-        .attr("y", d => d.y - 20);
+    // Update positions of nodes and shapes
+    node.selectAll("path")
+        .attr("transform", d => `translate(${d.x}, ${d.y})`);
+
+    // Update text labels to stay aligned with shapes
+    node.selectAll("text")
+        .attr("x", d => d.x + 25)
+        .attr("y", d => d.y + 5);
 }
 
 // Modal Handling
