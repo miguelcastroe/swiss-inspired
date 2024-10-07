@@ -85,11 +85,12 @@ function hexagonPoints(size) {
     ]).map(p => p.join(",")).join(" ");
 }
 
-// Helper function to generate equilateral triangle points (centered, size is half height)
+// Helper function to generate equilateral triangle points (centered, size is 11px)
 function trianglePoints(size) {
-    const height = size * Math.sqrt(3);
+    const height = size * Math.sqrt(3); // Height of equilateral triangle
     return `0,${-height / 2} ${-size},${height / 2} ${size},${height / 2}`;
 }
+
 
 // Add text labels next to each node with more space to prevent overlap
 node.append("text")
