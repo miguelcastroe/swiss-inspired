@@ -28,11 +28,14 @@ const links = [
   // Add more links as needed
 ];
 
-// Set up the force simulation
+// Set up the force simulation with gentle forces for floating effect
 const simulation = d3.forceSimulation(nodes)
   .force("link", d3.forceLink(links).id(d => d.id).distance(150))
-  .force("charge", d3.forceManyBody().strength(-300))
-  .force("center", d3.forceCenter(width / 2, height / 2));
+  .force("charge", d3.forceManyBody().strength(-100)) // Reduce repulsion for gentle movement
+  .force("center", d3.forceCenter(width / 2, height / 2))
+  .force("x", d3.forceX().strength(0.01)) // Gentle floating movement on the x-axis
+  .force("y", d3.forceY().strength(0.01)) // Gentle floating movement on the y-axis
+  .alphaDecay(0.05); // Slower decay for persistent, soft movement
 
 // Add links (lines) between the nodes
 const link = svg.append("g")
@@ -115,11 +118,23 @@ simulation.on("tick", () => {
     .attr("y2", d => d.target.y);
 
   node
-    .attr("transform", d => `translate(${d.x},${d.y})`)
-    .transition()
-    .duration(1000)
-    .ease(d3.easeCubicInOut);
+    .attr("transform", d => `translate(${d.x},${d.y})`);
 });
+
+// Gentle, subtle floating effect on each tick
+function floatEffect() {
+  nodes.forEach(d => {
+    d.vx += (Math.random() - 0.5) * 0.05;  // Random x-axis movement
+    d.vy += (Math.random() - 0.5) * 0.05;  // Random y-axis movement
+  });
+
+  simulation.alpha(0.3).restart();  // Keep simulation running with subtle effects
+}
+
+// Continuously apply floating effect
+d3.interval(() => {
+  floatEffect();
+}, 1000);  // Update every second for gentle movement
 
 // Zoom and Pan functionality
 const zoom = d3.zoom()
