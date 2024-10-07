@@ -1,6 +1,8 @@
+// Set the dimensions of the visualization
 const width = window.innerWidth;
 const height = window.innerHeight;
 
+// Create the SVG container
 const svg = d3.select("#network-container")
   .append("svg")
   .attr("width", width)
@@ -29,7 +31,7 @@ const links = [
 // Set up the force simulation
 const simulation = d3.forceSimulation(nodes)
   .force("link", d3.forceLink(links).id(d => d.id).distance(150))
-  .force("charge", d3.forceManyBody().strength(-200))
+  .force("charge", d3.forceManyBody().strength(-300))
   .force("center", d3.forceCenter(width / 2, height / 2));
 
 // Add links (lines) between the nodes
@@ -38,6 +40,8 @@ const link = svg.append("g")
   .selectAll("line")
   .data(links)
   .enter().append("line")
+  .attr("stroke", "#333")
+  .attr("stroke-width", 1)
   .attr("class", d => d.dotted ? "dotted-line" : "line");
 
 // Add nodes with shapes and labels
@@ -46,12 +50,6 @@ const node = svg.append("g")
   .selectAll("g")
   .data(nodes)
   .enter().append("g");
-
-node.append("text")
-  .attr("class", "label")
-  .attr("x", 30) // Move the label away from the shape for better alignment
-  .attr("y", 5)
-  .text(d => d.id);
 
 // Draw different geometrical shapes based on node data
 node.each(function(d) {
@@ -77,7 +75,38 @@ node.each(function(d) {
   }
 });
 
-// Update simulation
+// Add text labels next to each node
+node.append("text")
+  .attr("class", "label")
+  .attr("x", 30) // Adjust spacing between shape and text
+  .attr("y", 5)
+  .text(d => d.id);
+
+// Add hover effects for interactivity
+node.on("mouseover", function() {
+  d3.select(this).select(".shape")
+    .transition()
+    .duration(300)
+    .attr("fill", "#666");  // Highlight color on hover
+  
+  d3.select(this).select(".label")
+    .transition()
+    .duration(300)
+    .style("font-weight", "bold");
+})
+.on("mouseout", function() {
+  d3.select(this).select(".shape")
+    .transition()
+    .duration(300)
+    .attr("fill", "#e0e0e0");  // Reset color on mouse out
+  
+  d3.select(this).select(".label")
+    .transition()
+    .duration(300)
+    .style("font-weight", "normal");
+});
+
+// Update simulation on tick to move nodes and lines
 simulation.on("tick", () => {
   link
     .attr("x1", d => d.source.x)
@@ -86,5 +115,17 @@ simulation.on("tick", () => {
     .attr("y2", d => d.target.y);
 
   node
-    .attr("transform", d => `translate(${d.x},${d.y})`);
+    .attr("transform", d => `translate(${d.x},${d.y})`)
+    .transition()
+    .duration(1000)
+    .ease(d3.easeCubicInOut);
 });
+
+// Zoom and Pan functionality
+const zoom = d3.zoom()
+  .scaleExtent([0.5, 5])
+  .on("zoom", (event) => {
+    svg.attr("transform", event.transform);
+  });
+
+svg.call(zoom);
