@@ -1,3 +1,14 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
 #network-container {
     width: 100vw;
     height: 100vh;
@@ -5,45 +16,21 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    background-color: #f7f7f7;
-}
-
-.node {
-    position: relative;
-    text-align: center;
 }
 
 .shape {
-    fill: #ccc;
+    fill: #e0e0e0;
     stroke: #333;
     stroke-width: 1;
     transition: all 0.3s ease;
 }
 
 .label {
-    font-family: Space Mono, sans-serif;
+    font-family: Arial, sans-serif;
     font-size: 12px;
     fill: #333;
     text-anchor: start;
-}
-
-.circle {
-    r: 22px;
-}
-
-.square {
-    width: 32px;
-    height: 32px;
-}
-
-.hexagon {
-    fill: #ccc;
-    stroke: #333;
-}
-
-.triangle {
-    fill: #ccc;
-    stroke: #333;
+    pointer-events: none; /* Prevents labels from interfering with interactivity */
 }
 
 .line, .dotted-line {
@@ -52,5 +39,5 @@
 }
 
 .dotted-line {
-    stroke-dasharray: 5, 5;
+    stroke-dasharray: 4, 4; /* Dotted effect */
 }
