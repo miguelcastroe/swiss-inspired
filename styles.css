@@ -27,6 +27,7 @@ html, body {
     font-family: Arial, sans-serif;
     font-size: 14px;
     fill: #333;
+    pointer-events: none; /* Prevent the label from blocking interaction with shapes */
 }
 
 /* Links */
