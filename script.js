@@ -10,7 +10,7 @@ const svg = d3.select("#network-container")
 
 // Define the nodes and links with geometric shapes
 const nodes = [
-    { id: "Andrew Trousdale", group: 1, shape: "circle" },
+    { id: "Andrew Trousdale", group: 1, shape: "circle", fixed: true }, // Center node
     { id: "Information", group: 1, shape: "circle" },
     { id: "Interactive Machines", group: 2, shape: "hexagon" },
     { id: "Human Expression", group: 2, shape: "square" },
@@ -26,14 +26,14 @@ const links = [
     { source: "Positive Psychology", target: "Andrew Trousdale", value: 1 }
 ];
 
-// Set up the force simulation with gentle forces for floating effect
+// Set up the force simulation
 const simulation = d3.forceSimulation(nodes)
     .force("link", d3.forceLink(links).id(d => d.id).distance(150))
-    .force("charge", d3.forceManyBody().strength(-100)) // Reduce repulsion for gentle movement
+    .force("charge", d3.forceManyBody().strength(-80))
+    .force("collision", d3.forceCollide().radius(50))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("x", d3.forceX().strength(0.01)) // Gentle floating movement on the x-axis
-    .force("y", d3.forceY().strength(0.01)) // Gentle floating movement on the y-axis
-    .alphaDecay(0.05); // Slower decay for persistent, soft movement
+    .alphaDecay(0.01)
+    .velocityDecay(0.4);
 
 // Add links (lines) between the nodes
 const link = svg.append("g")
@@ -75,19 +75,19 @@ node.each(function (d) {
     }
 });
 
-// Add text labels next to each node
+// Add text labels next to each node with more space to prevent overlap
 node.append("text")
     .attr("class", "label")
-    .attr("x", 30) // Adjust spacing between shape and text
+    .attr("x", 45) // Increase space between shape and text
     .attr("y", 5)
     .text(d => d.id);
 
-// Add hover effects for interactivity
+// Hover effects for interactivity
 node.on("mouseover", function () {
     d3.select(this).select(".shape")
         .transition()
         .duration(300)
-        .attr("fill", "#666");  // Highlight color on hover
+        .attr("fill", "#666");
 
     d3.select(this).select(".label")
         .transition()
@@ -98,7 +98,7 @@ node.on("mouseover", function () {
         d3.select(this).select(".shape")
             .transition()
             .duration(300)
-            .attr("fill", "#e0e0e0");  // Reset color on mouse out
+            .attr("fill", "#e0e0e0");
 
         d3.select(this).select(".label")
             .transition()
@@ -108,6 +108,11 @@ node.on("mouseover", function () {
 
 // Update simulation on tick to move nodes and lines
 simulation.on("tick", () => {
+    // Keep the center node fixed at the center of the screen
+    const centerNode = nodes.find(d => d.id === "Andrew Trousdale");
+    centerNode.fx = width / 2;
+    centerNode.fy = height / 2;
+
     link
         .attr("x1", d => d.source.x)
         .attr("y1", d => d.source.y)
@@ -121,17 +126,19 @@ simulation.on("tick", () => {
 // Gentle, subtle floating effect on each tick
 function floatEffect() {
     nodes.forEach(d => {
-        d.vx += (Math.random() - 0.5) * 0.05;  // Random x-axis movement
-        d.vy += (Math.random() - 0.5) * 0.05;  // Random y-axis movement
+        if (!d.fixed) {  // Only apply to non-fixed nodes
+            d.vx += (Math.random() - 0.5) * 0.02;
+            d.vy += (Math.random() - 0.5) * 0.02;
+        }
     });
 
-    simulation.alpha(0.3).restart();  // Keep simulation running with subtle effects
+    simulation.alpha(0.1).restart();  // Keep simulation running with subtle effects
 }
 
 // Continuously apply floating effect
 d3.interval(() => {
     floatEffect();
-}, 1000);  // Update every second for gentle movement
+}, 2000);
 
 // Zoom and Pan functionality
 const zoom = d3.zoom()
