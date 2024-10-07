@@ -1,36 +1,27 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background: #f4f4f4;
+    font-family: 'Brunswick Grotesque', sans-serif;
 }
 
 #network-container {
     width: 100vw;
     height: 100vh;
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
 }
 
 .shape {
     fill: #e0e0e0;
     stroke: #333;
     stroke-width: 1;
-    transition: all 0.3s ease;
+    transition: all 0.5s ease;
 }
 
 .label {
-    font-family: Arial, sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     fill: #333;
-    text-anchor: start;
-    pointer-events: none; /* Prevents labels from interfering with interactivity */
 }
 
 .line, .dotted-line {
@@ -39,5 +30,14 @@ body {
 }
 
 .dotted-line {
-    stroke-dasharray: 4, 4; /* Dotted effect */
+    stroke-dasharray: 4, 4;
+}
+
+.node:hover .shape {
+    fill: #888;
+}
+
+.node .label {
+    text-anchor: middle;
+    dominant-baseline: central;
 }
