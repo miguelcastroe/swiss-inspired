@@ -24,23 +24,22 @@ line {
     stroke-width: 1px;
 }
 
-/* Text labels */
-text {
-    font-size: 12px;
-    fill: #333;
+/* Button styling for nodes */
+.node-button {
+    background-color: #e0e0e0;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
     font-family: Arial, sans-serif;
-    pointer-events: none;
+    font-size: 12px;
+    text-align: center;
+    width: 100px;
+    color: #333;
 }
 
-/* Enforcing exact sizes for shapes */
-.circle, .square, .hexagon {
-    width: 22px;
-    height: 22px;
-}
-
-.triangle {
-    width: 22px;
-    height: 22px;
+.node-button:hover {
+    background-color: #ccc;
 }
 
 /* Modal styles */
@@ -79,8 +78,4 @@ text {
     color: black;
     text-decoration: none;
     cursor: pointer;
-}
-
-h2 {
-    margin-top: 0;
 }
