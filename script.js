@@ -15,9 +15,6 @@ const nodes = [
     { id: 5, name: "Information", shape: "circle", x: 500, y: 500 }
 ];
 
-const centralNode = nodes[0];
-
-// Create links
 const links = [
     { source: 0, target: 1 },
     { source: 0, target: 2 },
@@ -26,7 +23,7 @@ const links = [
     { source: 0, target: 5 }
 ];
 
-// Add lines between nodes
+// Create links
 const link = svg.selectAll("line")
     .data(links)
     .enter()
@@ -36,19 +33,18 @@ const link = svg.selectAll("line")
     .attr("x2", d => nodes[d.target].x)
     .attr("y2", d => nodes[d.target].y);
 
-// Add node shapes and text
+// Add node groups
 const node = svg.selectAll(".node")
     .data(nodes)
     .enter()
     .append("g")
     .attr("class", "node")
     .on("click", function(event, d) {
-        openModal(d);
+        openModal(d);  // Handle click event to open the modal
     });
 
 // Add shapes
 node.append("path")
-    .attr("class", d => `shape ${d.shape}`)
     .attr("d", function(d) {
         switch(d.shape) {
             case "circle":
@@ -63,14 +59,14 @@ node.append("path")
     })
     .attr("transform", d => `translate(${d.x}, ${d.y})`);
 
-// Add text labels
+// Add text labels to each node
 node.append("text")
-    .attr("dx", d => d.x + 25)  // Position text near the node
+    .attr("dx", d => d.x + 25)
     .attr("dy", d => d.y)
     .text(d => d.name);
 
-// Central node should remain static
-const forceSimulation = d3.forceSimulation(nodes)
+// Force simulation to move nodes around
+const simulation = d3.forceSimulation(nodes)
     .force("link", d3.forceLink(links).distance(100))
     .force("charge", d3.forceManyBody().strength(-150))
     .force("center", d3.forceCenter(width / 2, height / 2))
@@ -78,30 +74,16 @@ const forceSimulation = d3.forceSimulation(nodes)
     .on("tick", ticked);
 
 function ticked() {
+    // Update positions of lines
     link
         .attr("x1", d => nodes[d.source].x)
         .attr("y1", d => nodes[d.source].y)
         .attr("x2", d => nodes[d.target].x)
         .attr("y2", d => nodes[d.target].y);
 
-    node.select("path")
-        .attr("transform", d => `translate(${d.x}, ${d.y})`);
-
-    node.select("text")
-        .attr("dx", d => d.x + 25)
-        .attr("dy", d => d.y);
+    // Update positions of nodes
+    node.attr("transform", d => `translate(${d.x}, ${d.y})`);
 }
-
-// Disable movement for the central node
-forceSimulation
-    .alpha(1)
-    .restart();
-forceSimulation.nodes().forEach(n => {
-    if (n.id === 0) {
-        n.fx = width / 2;
-        n.fy = height / 2;
-    }
-});
 
 // Modal Handling
 const modal = document.getElementById("node-modal");
@@ -112,6 +94,7 @@ const closeModal = document.getElementsByClassName("close")[0];
 // Function to open the modal
 function openModal(d) {
     modalTitle.textContent = d.name;  // Set modal title to node name
+    modalContent.textContent = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.";  // Example content
     modal.style.display = "block";
 }
 
