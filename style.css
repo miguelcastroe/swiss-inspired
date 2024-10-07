@@ -1,0 +1,71 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+#network-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+.shape {
+    width: 42px;
+    height: 42px;
+    background-color: #ccc;
+    transition: all 0.5s ease;
+}
+
+.label {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+}
+
+/* Geometrical Shape Modifiers */
+.circle {
+    border-radius: 50%;
+}
+
+.square {
+    border-radius: 0;
+}
+
+.hexagon {
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.triangle {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.line {
+    stroke: black;
+    stroke-width: 1;
+}
+
+.dotted-line {
+    stroke: black;
+    stroke-width: 1;
+    stroke-dasharray: 5, 5;
+}
