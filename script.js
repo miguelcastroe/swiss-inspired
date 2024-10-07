@@ -6,7 +6,7 @@ const svg = d3.select("#network-container")
   .attr("width", width)
   .attr("height", height);
 
-// Define the nodes and links
+// Define the nodes and links with geometric shapes
 const nodes = [
   { id: "Andrew Trousdale", group: 1, shape: "circle" },
   { id: "Information", group: 1, shape: "circle" },
@@ -49,19 +49,19 @@ const node = svg.append("g")
 
 node.append("text")
   .attr("class", "label")
-  .attr("x", 25) // Move the label to the right of the shape
+  .attr("x", 30) // Move the label away from the shape for better alignment
   .attr("y", 5)
   .text(d => d.id);
 
-// Add different geometrical shapes
+// Draw different geometrical shapes based on node data
 node.each(function(d) {
   if (d.shape === "circle") {
     d3.select(this).append("circle")
-      .attr("r", 21) // Radius of 21px for the circle
+      .attr("r", 21)
       .attr("class", "shape circle");
   } else if (d.shape === "hexagon") {
     d3.select(this).append("polygon")
-      .attr("points", "-12, 21 12, 21 21, 0 12, -21 -12, -21 -21, 0")
+      .attr("points", "12,-21 24,0 12,21 -12,21 -24,0 -12,-21")
       .attr("class", "shape hexagon");
   } else if (d.shape === "square") {
     d3.select(this).append("rect")
