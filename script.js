@@ -57,7 +57,7 @@ node.each(function (d) {
             .attr("r", 11)  // Circle with radius 11px to make diameter 22px
             .attr("class", "shape circle");
     } else if (d.shape === "hexagon") {
-        const size = 11; // For a regular hexagon with a width of 22px
+        const size = 11; // Fit hexagon into a 22px bounding box
         d3.select(this).append("polygon")
             .attr("points", hexagonPoints(size))  // Helper function below
             .attr("class", "shape hexagon");
@@ -69,7 +69,7 @@ node.each(function (d) {
             .attr("y", -11)
             .attr("class", "shape square");
     } else if (d.shape === "triangle") {
-        const size = 11;  // Half of the base width (height will adjust)
+        const size = 11;  // Half of the base width (height will adjust for equilateral)
         d3.select(this).append("polygon")
             .attr("points", trianglePoints(size))  // Helper function for equilateral triangle
             .attr("class", "shape triangle");
@@ -87,4 +87,80 @@ function hexagonPoints(size) {
 
 // Helper function to generate equilateral triangle points (centered, size is half base width)
 function trianglePoints(size) {
-    const height = size * Math
+    const height = size * Math.sqrt(3); // Height of equilateral triangle
+    return `0,${-height / 2} ${-size},${height / 2} ${size},${height / 2}`;
+}
+
+// Add text labels next to each node with more space to prevent overlap
+node.append("text")
+    .attr("class", "label")
+    .attr("x", 25)  // Add more space to avoid overlap
+    .attr("y", 5)
+    .text(d => d.id);
+
+// Hover effects for interactivity
+node.on("mouseover", function () {
+    d3.select(this).select(".shape")
+        .transition()
+        .duration(300)
+        .attr("fill", "#666");
+
+    d3.select(this).select(".label")
+        .transition()
+        .duration(300)
+        .style("font-weight", "bold");
+})
+    .on("mouseout", function () {
+        d3.select(this).select(".shape")
+            .transition()
+            .duration(300)
+            .attr("fill", "#e0e0e0");
+
+        d3.select(this).select(".label")
+            .transition()
+            .duration(300)
+            .style("font-weight", "normal");
+    });
+
+// Update simulation on tick to move nodes and lines
+simulation.on("tick", () => {
+    // Keep the center node fixed at the center of the screen
+    const centerNode = nodes.find(d => d.id === "Andrew Trousdale");
+    centerNode.fx = width / 2;
+    centerNode.fy = height / 2;
+
+    link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+    node
+        .attr("transform", d => `translate(${d.x},${d.y})`);
+});
+
+// Gentle floating effect
+function floatEffect() {
+    nodes.forEach(d => {
+        if (!d.fixed) {  // Only apply to non-fixed nodes
+            d.vx += (Math.random() - 0.5) * 0.01;
+            d.vy += (Math.random() - 0.5) * 0.01;
+        }
+    });
+
+    simulation.alpha(0.1).restart();  // Keep simulation running with subtle effects
+}
+
+// Continuously apply floating effect at a relaxed interval
+d3.interval(() => {
+    floatEffect();
+}, 3000);  // Slow interval for relaxed movement
+
+// Zoom and Pan functionality
+const zoom = d3.zoom()
+    .scaleExtent([0.5, 5])
+    .on("zoom", (event) => {
+        svg.attr("transform", event.transform);
+    });
+
+svg.call(zoom);
