@@ -12,8 +12,8 @@ const nodes = [
   { id: "Information", group: 1, shape: "circle" },
   { id: "Interactive Machines", group: 2, shape: "hexagon" },
   { id: "Human Expression", group: 2, shape: "square" },
-  { id: "Evolutionary Systems", group: 3, shape: "circle" },
-  { id: "Positive Psychology", group: 3, shape: "triangle" },
+  { id: "Evolutionary Systems", group: 3, shape: "triangle" },
+  { id: "Positive Psychology", group: 3, shape: "triangle" }
   // Add more nodes as needed
 ];
 
@@ -22,7 +22,7 @@ const links = [
   { source: "Andrew Trousdale", target: "Interactive Machines", value: 1 },
   { source: "Andrew Trousdale", target: "Human Expression", value: 1 },
   { source: "Human Expression", target: "Evolutionary Systems", value: 1 },
-  { source: "Positive Psychology", target: "Andrew Trousdale", value: 1 },
+  { source: "Positive Psychology", target: "Andrew Trousdale", value: 1 }
   // Add more links as needed
 ];
 
@@ -32,6 +32,7 @@ const simulation = d3.forceSimulation(nodes)
   .force("charge", d3.forceManyBody().strength(-200))
   .force("center", d3.forceCenter(width / 2, height / 2));
 
+// Add links (lines) between the nodes
 const link = svg.append("g")
   .attr("class", "links")
   .selectAll("line")
@@ -39,6 +40,7 @@ const link = svg.append("g")
   .enter().append("line")
   .attr("class", d => d.dotted ? "dotted-line" : "line");
 
+// Add nodes with shapes and labels
 const node = svg.append("g")
   .attr("class", "nodes")
   .selectAll("g")
@@ -47,14 +49,35 @@ const node = svg.append("g")
 
 node.append("text")
   .attr("class", "label")
-  .attr("x", 8)
-  .attr("y", 3)
+  .attr("x", 25) // Move the label to the right of the shape
+  .attr("y", 5)
   .text(d => d.id);
 
-node.append("circle")
-  .attr("r", 20)
-  .attr("class", d => "shape " + d.shape);
+// Add different geometrical shapes
+node.each(function(d) {
+  if (d.shape === "circle") {
+    d3.select(this).append("circle")
+      .attr("r", 21) // Radius of 21px for the circle
+      .attr("class", "shape circle");
+  } else if (d.shape === "hexagon") {
+    d3.select(this).append("polygon")
+      .attr("points", "-12, 21 12, 21 21, 0 12, -21 -12, -21 -21, 0")
+      .attr("class", "shape hexagon");
+  } else if (d.shape === "square") {
+    d3.select(this).append("rect")
+      .attr("width", 42)
+      .attr("height", 42)
+      .attr("x", -21)
+      .attr("y", -21)
+      .attr("class", "shape square");
+  } else if (d.shape === "triangle") {
+    d3.select(this).append("polygon")
+      .attr("points", "0,-21 18,21 -18,21")
+      .attr("class", "shape triangle");
+  }
+});
 
+// Update simulation
 simulation.on("tick", () => {
   link
     .attr("x1", d => d.source.x)
