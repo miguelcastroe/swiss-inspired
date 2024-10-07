@@ -29,11 +29,10 @@ const links = [
 // Set up the force simulation
 const simulation = d3.forceSimulation(nodes)
     .force("link", d3.forceLink(links).id(d => d.id).distance(150))
-    .force("charge", d3.forceManyBody().strength(-80))
-    .force("collision", d3.forceCollide().radius(50))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .alphaDecay(0.01)
-    .velocityDecay(0.4);
+    .force("charge", d3.forceManyBody().strength(-100))
+    .force("collision", d3.forceCollide().radius(40)) // Ensure spacing to prevent overlap
+    .alphaDecay(0.01) // Slow decay for gentle movement
+    .velocityDecay(0.4); // Reduce velocity decay for smoother, continuous movement
 
 // Add links (lines) between the nodes
 const link = svg.append("g")
@@ -55,30 +54,47 @@ const node = svg.append("g")
 node.each(function (d) {
     if (d.shape === "circle") {
         d3.select(this).append("circle")
-            .attr("r", 21)
+            .attr("r", 11)  // Circle with radius 11px to make diameter 22px
             .attr("class", "shape circle");
     } else if (d.shape === "hexagon") {
+        const size = 11; // For a regular hexagon with a width of 22px
         d3.select(this).append("polygon")
-            .attr("points", "12,-21 24,0 12,21 -12,21 -24,0 -12,-21")
+            .attr("points", hexagonPoints(size))  // Helper function below
             .attr("class", "shape hexagon");
     } else if (d.shape === "square") {
         d3.select(this).append("rect")
-            .attr("width", 42)
-            .attr("height", 42)
-            .attr("x", -21)
-            .attr("y", -21)
+            .attr("width", 22)
+            .attr("height", 22)
+            .attr("x", -11)  // Center the square
+            .attr("y", -11)
             .attr("class", "shape square");
     } else if (d.shape === "triangle") {
+        const size = 11;  // For an equilateral triangle with a height of 22px
         d3.select(this).append("polygon")
-            .attr("points", "0,-21 18,21 -18,21")
+            .attr("points", trianglePoints(size))  // Helper function below
             .attr("class", "shape triangle");
     }
 });
 
+// Helper function to generate hexagon points (for regular hexagon with given size)
+function hexagonPoints(size) {
+    const angle = Math.PI / 3;
+    return Array.from({ length: 6 }, (_, i) => [
+        size * Math.cos(angle * i),
+        size * Math.sin(angle * i)
+    ]).map(p => p.join(",")).join(" ");
+}
+
+// Helper function to generate equilateral triangle points (centered, size is half height)
+function trianglePoints(size) {
+    const height = size * Math.sqrt(3);
+    return `0,${-height / 2} ${-size},${height / 2} ${size},${height / 2}`;
+}
+
 // Add text labels next to each node with more space to prevent overlap
 node.append("text")
     .attr("class", "label")
-    .attr("x", 45) // Increase space between shape and text
+    .attr("x", 25)  // Add more space to avoid overlap
     .attr("y", 5)
     .text(d => d.id);
 
@@ -123,22 +139,22 @@ simulation.on("tick", () => {
         .attr("transform", d => `translate(${d.x},${d.y})`);
 });
 
-// Gentle, subtle floating effect on each tick
+// Gentle floating effect
 function floatEffect() {
     nodes.forEach(d => {
         if (!d.fixed) {  // Only apply to non-fixed nodes
-            d.vx += (Math.random() - 0.5) * 0.02;
-            d.vy += (Math.random() - 0.5) * 0.02;
+            d.vx += (Math.random() - 0.5) * 0.01;
+            d.vy += (Math.random() - 0.5) * 0.01;
         }
     });
 
     simulation.alpha(0.1).restart();  // Keep simulation running with subtle effects
 }
 
-// Continuously apply floating effect
+// Continuously apply floating effect at a relaxed interval
 d3.interval(() => {
     floatEffect();
-}, 2000);
+}, 3000);  // Slow interval for relaxed movement
 
 // Zoom and Pan functionality
 const zoom = d3.zoom()
