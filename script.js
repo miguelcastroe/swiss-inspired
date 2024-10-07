@@ -23,7 +23,7 @@ const links = [
     { source: 0, target: 5 }
 ];
 
-// Create links
+// Add lines between nodes
 const link = svg.selectAll("line")
     .data(links)
     .enter()
@@ -38,39 +38,27 @@ const node = svg.selectAll(".node")
     .data(nodes)
     .enter()
     .append("g")
-    .attr("class", "node")
+    .attr("class", "node");
+
+// Add a button inside each node (using foreignObject to allow HTML inside SVG)
+node.append("foreignObject")
+    .attr("x", d => d.x - 50)  // Center the button
+    .attr("y", d => d.y - 20)
+    .attr("width", 100)
+    .attr("height", 40)
+    .append("xhtml:button")
+    .attr("class", "node-button")
+    .text(d => d.name)
     .on("click", function(event, d) {
         openModal(d);  // Handle click event to open the modal
     });
-
-// Add shapes
-node.append("path")
-    .attr("d", function(d) {
-        switch(d.shape) {
-            case "circle":
-                return d3.symbol().type(d3.symbolCircle).size(380)();
-            case "square":
-                return d3.symbol().type(d3.symbolSquare).size(380)();
-            case "hexagon":
-                return d3.symbol().type(d3.symbolHexagon).size(380)();
-            case "triangle":
-                return d3.symbol().type(d3.symbolTriangle).size(380)();
-        }
-    })
-    .attr("transform", d => `translate(${d.x}, ${d.y})`);
-
-// Add text labels to each node
-node.append("text")
-    .attr("dx", d => d.x + 25)
-    .attr("dy", d => d.y)
-    .text(d => d.name);
 
 // Force simulation to move nodes around
 const simulation = d3.forceSimulation(nodes)
     .force("link", d3.forceLink(links).distance(100))
     .force("charge", d3.forceManyBody().strength(-150))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(40))
+    .force("collision", d3.forceCollide().radius(80))  // Ensure no overlap
     .on("tick", ticked);
 
 function ticked() {
@@ -82,7 +70,9 @@ function ticked() {
         .attr("y2", d => nodes[d.target].y);
 
     // Update positions of nodes
-    node.attr("transform", d => `translate(${d.x}, ${d.y})`);
+    node.selectAll("foreignObject")
+        .attr("x", d => d.x - 50)  // Center the button
+        .attr("y", d => d.y - 20);
 }
 
 // Modal Handling
