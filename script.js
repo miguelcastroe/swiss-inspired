@@ -29,7 +29,7 @@ const links = [
 // Initialize the force simulation
 const simulation = d3.forceSimulation(nodes)
   .force("link", d3.forceLink(links).id(d => d.id).distance(150))  // Link distance
-  .force("charge", d3.forceManyBody().strength(-150))  // Charge strength to repel nodes
+  .force("charge", d3.forceManyBody().strength(-100))  // Reduce charge strength to make movement gentler
   .force("center", d3.forceCenter(width / 2, height / 2))  // Center the simulation
   .force("collide", d3.forceCollide().radius(40))  // Collision radius
   .on("tick", ticked);
@@ -48,7 +48,8 @@ const node = svg.append("g")
   .attr("class", "nodes")
   .selectAll("g")
   .data(nodes)
-  .enter().append("g");
+  .enter().append("g")
+  .on("click", handleNodeClick);  // Add click handler
 
 // Function to generate different shapes based on the node's type
 node.each(function(d) {
@@ -107,8 +108,8 @@ simulation.on('tick', () => {
 setInterval(() => {
   nodes.forEach(d => {
     if (d.id !== 'Andrew Trousdale') {  // Skip the central node
-      d.x += Math.random() * 2 - 1;  // Add a small random displacement
-      d.y += Math.random() * 2 - 1;
+      d.x += Math.random() * 1 - 0.5;  // Smaller random movement for gentler behavior
+      d.y += Math.random() * 1 - 0.5;
 
       // Keep nodes within the visible area
       d.x = Math.max(30, Math.min(width - 30, d.x));
@@ -116,7 +117,7 @@ setInterval(() => {
     }
   });
   simulation.alpha(0.1).restart();  // Keep the simulation active with small motion
-}, 200);  // Update the position every 200 milliseconds
+}, 300);  // Update the position every 300 milliseconds
 
 // Function to update the position of nodes and links on each tick
 function ticked() {
@@ -147,3 +148,16 @@ function createEquilateralTrianglePath(size) {
   const height = (Math.sqrt(3) / 2) * size;
   return `M0,-${height / 2} L${size / 2},${height / 2} L-${size / 2},${height / 2} Z`;
 }
+
+// Handle node click to open the modal
+function handleNodeClick(event, d) {
+  const modal = document.getElementById("myModal");
+  const modalTitle = document.getElementById("modalTitle");
+  modalTitle.textContent = d.id;  // Set the modal title to the node's name
+  modal.style.display = "block";  // Show the modal
+}
+
+// Handle modal close
+document.querySelector(".close").addEventListener("click", function() {
+  document.getElementById("myModal").style.display = "none";  // Close the modal
+});
