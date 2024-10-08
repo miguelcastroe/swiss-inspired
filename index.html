@@ -1,71 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mike's Interactive Network</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background-color: #f5f6f2;
-    }
-    
-    svg {
-      display: block;
-      margin: 0 auto;
-      background-color: #f5f6f2;
-    }
-
-    .node circle,
-    .node path {
-      stroke: #888;
-      fill: #e5e5e5;
-      cursor: pointer;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 999;
-      background-color: white;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      width: 300px;
-      border-radius: 10px;
-    }
-
-    .modal h2 {
-      margin-top: 0;
-    }
-
-    .modal p {
-      font-size: 14px;
-    }
-
-    .modal .close-btn {
-      cursor: pointer;
-      color: red;
-      float: right;
-      font-size: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 Network Example</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f5f6f2;
+        }
+        text {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-  <svg width="100%" height="100%"></svg>
+    <div id="network"></div>
 
-  <div id="modal" class="modal">
-    <span class="close-btn">&times;</span>
-    <h2 id="modal-title"></h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque tincidunt metus vel dui feugiat, nec ultrices sapien aliquet.</p>
-  </div>
-
-  <script src="https://d3js.org/d3.v6.min.js"></script>
-  <script src="script.js"></script>
+    <!-- Include D3.js -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <!-- Include the custom script -->
+    <script src="script.js"></script>
 </body>
 </html>
