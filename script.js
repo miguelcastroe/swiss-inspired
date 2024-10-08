@@ -109,6 +109,10 @@ setInterval(() => {
     if (d.id !== 'Andrew Trousdale') {  // Skip the central node
       d.x += Math.random() * 2 - 1;  // Add a small random displacement
       d.y += Math.random() * 2 - 1;
+
+      // Keep nodes within the visible area
+      d.x = Math.max(30, Math.min(width - 30, d.x));
+      d.y = Math.max(30, Math.min(height - 30, d.y));
     }
   });
   simulation.alpha(0.1).restart();  // Keep the simulation active with small motion
